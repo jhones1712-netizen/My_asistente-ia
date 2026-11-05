@@ -1,1 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valentina · Asesora de maquillaje</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app menu-oculto" id="app">
 
+    <!-- Barra lateral: configuración de la clave de OpenRouter -->
+    <aside class="sidebar" id="sidebar" aria-label="Configuración">
+      <h2>Configuración</h2>
+
+      <form id="form-clave" class="clave-form" autocomplete="off">
+        <label for="input-clave">Clave de OpenRouter</label>
+        <input type="password" id="input-clave" placeholder="Pega tu clave aquí" autocomplete="off">
+        <div class="clave-botones">
+          <button type="submit" class="btn-primario">Guardar</button>
+          <button type="button" id="btn-borrar-clave" class="btn-secundario">Borrar clave</button>
+        </div>
+      </form>
+
+      <p id="aviso-clave" class="aviso" role="status"></p>
+    </aside>
+
+    <div class="contenido">
+
+      <!-- Barra superior: logo y botones -->
+      <header class="topbar">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28">
+            <path fill="currentColor" d="M12 2c-1.7 2.8-6 4.6-6 9a6 6 0 0 0 12 0c0-4.4-4.3-6.2-6-9z"/>
+          </svg>
+        </div>
+        <button id="btn-sidebar" class="btn-icono" aria-label="Mostrar u ocultar barra lateral" aria-controls="sidebar" aria-expanded="false">☰</button>
+        <button id="btn-nuevo" class="btn-icono" aria-label="Nuevo chat">+</button>
+      </header>
+
+      <!-- Zona de conversación -->
+      <main class="chat" id="chat">
+        <section class="bienvenida" id="bienvenida">
+          <div class="logo logo-grande" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="44" height="44">
+              <path fill="currentColor" d="M12 2c-1.7 2.8-6 4.6-6 9a6 6 0 0 0 12 0c0-4.4-4.3-6.2-6-9z"/>
+            </svg>
+          </div>
+          <h1>¡Hola! ¿De qué quieres hablar hoy?</h1>
+        </section>
+        <div class="mensajes" id="mensajes"></div>
+      </main>
+
+      <!-- Cuadro de entrada -->
+      <footer class="pie">
+        <form id="form-chat" class="entrada">
+          <label for="mensaje" class="sr-only">Escribe tu mensaje</label>
+          <textarea id="mensaje" rows="1" placeholder="Mensaje al asistente de maquillaje"></textarea>
+
+          <div class="entrada-barra">
+            <div class="chips">
+              <!-- Chips decorativos: solo visuales -->
+              <span class="chip">Pensamiento Profundo</span>
+              <span class="chip chip-acento">Búsqueda inteligente</span>
+            </div>
+
+            <div class="entrada-acciones">
+              <button type="button" class="btn-icono" aria-label="Adjuntar archivo (no disponible)">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L16 6.5"/>
+                </svg>
+              </button>
+              <button type="submit" id="btn-enviar" class="btn-enviar" aria-label="Enviar mensaje">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      </footer>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
