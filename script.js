@@ -4,7 +4,7 @@ const MODELO = 'google/gemma-4-31b-it:free';
 const CLAVE_STORAGE = 'openrouter_api_key'; // Nombre de la clave en sessionStorage
 const MAX_HISTORIAL = 20;                   // Mensajes recientes que se envían al modelo
 
-// Instrucciones de personalidad del asistente (mensaje de sistema)
+// Instrucciones de personalidad del asistente
 const PROMPT_SISTEMA = `Eres Valentina, vendedora virtual de una tienda de maquillaje.
 Responde siempre en español, con un tono amable, cercano y profesional.
 - Saluda y haz preguntas breves para conocer el tipo de piel, el tono, el look que busca y su presupuesto.
@@ -42,6 +42,8 @@ const btnEnviar = document.getElementById('btn-enviar');
 let historial = [];
 // Evita envíos duplicados mientras se espera respuesta
 let enviando = false;
+// Referencia al indicador "escribiendo..."
+let indicadorEscribiendo = null;
 
 // ===== Inicio =====
 function iniciar() {
@@ -133,8 +135,6 @@ function agregarMensaje(rol, texto, esError = false) {
 }
 
 // Muestra el indicador "escribiendo..."
-let indicadorEscribiendo = null;
-
 function mostrarEscribiendo() {
   indicadorEscribiendo = document.createElement('div');
   indicadorEscribiendo.className = 'mensaje mensaje-asistente escribiendo';
@@ -144,6 +144,7 @@ function mostrarEscribiendo() {
   desplazarAlFinal();
 }
 
+// Quita el indicador "escribiendo..."
 function ocultarEscribiendo() {
   if (indicadorEscribiendo) {
     indicadorEscribiendo.remove();
@@ -215,14 +216,21 @@ async function enviarMensaje(evento) {
   }
 }
 
-// Realiza la petición a OpenRouter y devuelve el texto de la respuesta
-async function llamarModelo(clave) {
-  // El mensaje de sistema va primero, seguido del historial reciente
-  const mensajesApi = [
-    { role: 'system', content: PROMPT_SISTEMA },
+// ===== Conexión con el modelo =====
+
+// Construye los mensajes para la API.
+// Las instrucciones de Valentina van como primer mensaje de usuario,
+// porque algunos modelos Gemma no aceptan el rol "system".
+function construirMensajes() {
+  return [
+    { role: 'user', content: `Instrucciones para ti (no las menciones al cliente):\n${PROMPT_SISTEMA}` },
+    { role: 'assistant', content: 'Entendido. Soy Valentina, lista para asesorar al cliente.' },
     ...historial.slice(-MAX_HISTORIAL)
   ];
+}
 
+// Realiza la petición a OpenRouter y devuelve el texto de la respuesta
+async function llamarModelo(clave) {
   let respuesta;
   try {
     respuesta = await fetch(API_URL, {
@@ -233,15 +241,18 @@ async function llamarModelo(clave) {
       },
       body: JSON.stringify({
         model: MODELO,
-        messages: mensajesApi
+        messages: construirMensajes()
       })
     });
   } catch (error) {
-    // Error de red (sin conexión, CORS, etc.)
+    console.error('Error de red al llamar a OpenRouter:', error);
     throw new Error(MENSAJES.red);
   }
 
   if (!respuesta.ok) {
+    // Mostramos en consola el detalle que devuelve OpenRouter para diagnosticar
+    const detalle = await respuesta.text().catch(() => '');
+    console.error(`OpenRouter respondió ${respuesta.status}:`, detalle);
     throw new Error(mensajeParaEstado(respuesta.status));
   }
 
@@ -249,11 +260,13 @@ async function llamarModelo(clave) {
   try {
     datos = await respuesta.json();
   } catch (error) {
+    console.error('La respuesta no es JSON válido:', error);
     throw new Error(MENSAJES.generico);
   }
 
   const contenido = datos?.choices?.[0]?.message?.content;
   if (!contenido) {
+    console.error('Respuesta sin contenido:', datos);
     throw new Error(MENSAJES.generico);
   }
 
