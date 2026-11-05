@@ -1,1 +1,386 @@
+/* ===== Variables de color (tema oscuro) ===== */
+:root {
+  --fondo: #131316;
+  --superficie: #1f1f24;
+  --superficie-2: #2a2a31;
+  --borde: #34343d;
+  --texto: #f2f2f5;
+  --texto-suave: #9a9aa6;
+  --acento: #7c6cf0;
+  --acento-oscuro: #6a5ae0;
+  --error: #ff9a9a;
+  --ok: #8be3a6;
+}
 
+/* ===== Reset y base ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  min-height: 100vh;
+}
+
+/* Texto solo para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* Foco visible para accesibilidad */
+input:focus,
+textarea:focus,
+button:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* ===== Estructura general (móvil primero) ===== */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+}
+
+/* Barra lateral oculta en móvil; se muestra como panel superpuesto */
+.sidebar {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 280px;
+  max-width: 85%;
+  padding: 1.25rem;
+  background: var(--superficie);
+  border-right: 1px solid var(--borde);
+  z-index: 20;
+}
+
+.app.menu-abierto .sidebar {
+  display: flex;
+}
+
+.sidebar h2 {
+  font-size: 1.1rem;
+}
+
+.clave-form {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.clave-form label {
+  font-size: .9rem;
+  color: var(--texto-suave);
+}
+
+.clave-botones {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+input[type="password"] {
+  width: 100%;
+  padding: .6rem .8rem;
+  border-radius: 10px;
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  color: var(--texto);
+  font: inherit;
+}
+
+.btn-primario,
+.btn-secundario {
+  padding: .6rem 1rem;
+  border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-primario {
+  background: var(--acento);
+  color: #fff;
+  border: none;
+}
+
+.btn-primario:hover {
+  background: var(--acento-oscuro);
+}
+
+.btn-secundario {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+}
+
+.aviso {
+  font-size: .9rem;
+  min-height: 1.2em;
+}
+
+.aviso.ok { color: var(--ok); }
+.aviso.error { color: var(--error); }
+
+/* ===== Barra superior ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .75rem 1rem;
+}
+
+.logo {
+  color: var(--acento);
+  display: grid;
+  place-items: center;
+  margin-right: .5rem;
+}
+
+.btn-icono {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--superficie);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.btn-icono:hover {
+  background: var(--superficie-2);
+}
+
+/* ===== Zona de chat ===== */
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.bienvenida {
+  margin: auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.bienvenida.oculta {
+  display: none;
+}
+
+.logo-grande {
+  margin: 0;
+}
+
+.bienvenida h1 {
+  font-size: clamp(1.4rem, 4vw, 2.1rem);
+  font-weight: 600;
+}
+
+.mensajes {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.mensaje {
+  max-width: 88%;
+  padding: .75rem 1rem;
+  border-radius: 18px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mensaje-usuario {
+  align-self: flex-end;
+  background: var(--acento);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+
+.mensaje-asistente {
+  align-self: flex-start;
+  background: var(--superficie-2);
+  border-bottom-left-radius: 6px;
+}
+
+.mensaje-error {
+  border: 1px solid #6b3b3b;
+  color: var(--error);
+}
+
+/* Indicador "escribiendo..." */
+.escribiendo {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.escribiendo span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--texto-suave);
+  animation: rebote 1.2s infinite ease-in-out;
+}
+
+.escribiendo span:nth-child(2) { animation-delay: .2s; }
+.escribiendo span:nth-child(3) { animation-delay: .4s; }
+
+@keyframes rebote {
+  0%, 80%, 100% { transform: translateY(0); opacity: .4; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ===== Cuadro de entrada ===== */
+.pie {
+  padding: .75rem 1rem 1.25rem;
+}
+
+.entrada {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 24px;
+  padding: .9rem 1rem .6rem;
+}
+
+.entrada textarea {
+  width: 100%;
+  min-height: 24px;
+  max-height: 160px;
+  background: transparent;
+  border: none;
+  color: var(--texto);
+  font: inherit;
+  resize: none;
+  outline: none;
+}
+
+.entrada textarea::placeholder {
+  color: var(--texto-suave);
+}
+
+.entrada-barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+.chips {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  font-size: .82rem;
+  padding: .4rem .75rem;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  color: var(--texto-suave);
+}
+
+.chip-acento {
+  color: var(--acento);
+  border-color: var(--acento);
+}
+
+.entrada-acciones {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.btn-enviar {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--acento);
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-enviar:hover {
+  background: var(--acento-oscuro);
+}
+
+.btn-enviar:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* ===== Tablet (600px en adelante) ===== */
+@media (min-width: 600px) {
+  .mensaje {
+    max-width: 72%;
+  }
+
+  .topbar {
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* ===== Escritorio (900px en adelante) ===== */
+@media (min-width: 900px) {
+  .sidebar {
+    display: flex;
+    position: static;
+    height: 100vh;
+    max-width: none;
+  }
+
+  /* En escritorio la barra lateral es visible salvo que se oculte */
+  .app.menu-oculto .sidebar {
+    display: none;
+  }
+
+  .chat {
+    padding: 1.5rem 2rem;
+  }
+
+  .mensaje {
+    max-width: 65%;
+  }
+}
