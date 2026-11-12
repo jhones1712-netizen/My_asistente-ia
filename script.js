@@ -4,6 +4,19 @@ const MODELO = 'deepseek-v4-pro-0813';           // Modo normal: rápido, sin st
 const MODELO_RAZONAMIENTO = 'qwen3.8-2.4t-a95b'; // "Pensamiento Profundo": reasoning puro, exige streaming
 const CLAVE_STORAGE = 'dashscope_api_key'; // Nombre de la clave en sessionStorage
 const PENSAMIENTO_STORAGE = 'pensamiento_profundo'; // Estado del chip "Pensamiento Profundo"
+const TEMA_STORAGE = 'tema';               // Preferencia de tema (localStorage: no es un dato sensible)
+const PUBLICIDAD_STORAGE = 'publicidad';   // '1' = visible, '0' = oculta
+
+// Publicidad de fondo. Solo categorías y mensajes de marca: Valentina no puede inventar
+// precios ni promociones, así que aquí no deben ir descuentos que la tienda no haya confirmado.
+// sentido: hacia dónde se mueve la banda · velocidad: segundos por vuelta (más alto = más lento)
+// estilo: 'relleno' | 'contorno' | 'cinta'
+const PUBLICIDAD = [
+  { estilo: 'relleno',  sentido: 'izquierda', velocidad: 90,  frases: ['Labiales', 'Bases para cada tono', 'Rubores'] },
+  { estilo: 'contorno', sentido: 'derecha',   velocidad: 110, frases: ['Sombras', 'Correctores', 'Máscaras de pestañas'] },
+  { estilo: 'cinta',    sentido: 'izquierda', velocidad: 100, frases: ['Asesoría personalizada', 'Pregúntale a Valentina', 'Encuentra tu look'] },
+  { estilo: 'relleno',  sentido: 'derecha',   velocidad: 95,  frases: ['Polvos', 'Desmaquillantes', 'Cuidado de la piel'] }
+];
 const MAX_HISTORIAL = 20;                   // Mensajes recientes que se envían al modelo
 
 // Instrucciones de personalidad del asistente
@@ -35,6 +48,9 @@ const avisoClave = document.getElementById('aviso-clave');
 const btnSidebar = document.getElementById('btn-sidebar');
 const btnNuevo = document.getElementById('btn-nuevo');
 const btnPensamiento = document.getElementById('btn-pensamiento');
+const btnTema = document.getElementById('btn-tema');
+const btnPublicidad = document.getElementById('btn-publicidad');
+const giroPublicidad = document.getElementById('publicidad-giro');
 const chat = document.getElementById('chat');
 const bienvenida = document.getElementById('bienvenida');
 const mensajes = document.getElementById('mensajes');
@@ -50,6 +66,10 @@ let enviando = false;
 let pensamientoActivo = false;
 // Referencia al indicador "escribiendo..."
 let indicadorEscribiendo = null;
+// Temporizador que retira la clase de transición del tema
+let temporizadorTema = null;
+// Preferencia del sistema para reducir animaciones
+const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // ===== Inicio =====
 function iniciar() {
@@ -65,6 +85,15 @@ function iniciar() {
     pensamientoActivo = true;
     pintarPensamiento();
   }
+
+  // El tema ya lo aplicó el script del <head>; aquí solo sincronizamos el botón
+  aplicarTema(document.documentElement.dataset.tema || 'oscuro');
+  btnTema.addEventListener('click', alternarTema);
+
+  // La clase "sin-publicidad" ya la puso el script del <head> si el usuario la ocultó antes
+  construirPublicidad();
+  aplicarPublicidad(!document.documentElement.classList.contains('sin-publicidad'));
+  btnPublicidad.addEventListener('click', alternarPublicidad);
 
   formClave.addEventListener('submit', guardarClave);
   btnBorrarClave.addEventListener('click', borrarClave);
@@ -180,7 +209,10 @@ function ocultarEscribiendo() {
 
 // Desplaza el chat hasta el último mensaje
 function desplazarAlFinal() {
-  chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+  chat.scrollTo({
+    top: chat.scrollHeight,
+    behavior: reducirMovimiento.matches ? 'auto' : 'smooth'
+  });
 }
 
 // Activa o desactiva el botón de enviar
@@ -201,6 +233,92 @@ function manejarTeclado(evento) {
     evento.preventDefault();
     formChat.requestSubmit();
   }
+}
+
+// ===== Tema claro / oscuro =====
+
+// Aplica el tema, actualiza el botón y, si se pide, lo recuerda
+function aplicarTema(tema, guardar = false) {
+  document.documentElement.dataset.tema = tema;
+  const etiqueta = tema === 'oscuro' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+  btnTema.setAttribute('aria-label', etiqueta);
+  btnTema.title = etiqueta;
+
+  if (guardar) {
+    try {
+      localStorage.setItem(TEMA_STORAGE, tema);
+    } catch {
+      // Almacenamiento bloqueado (modo privado): el tema funciona igual, solo no se recuerda
+    }
+  }
+}
+
+// Cambia entre claro y oscuro por acción del usuario
+function alternarTema() {
+  const raiz = document.documentElement;
+  const nuevo = raiz.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
+
+  // La clase debe ponerse ANTES de cambiar el tema para que la transición se aplique
+  raiz.classList.add('cambiando-tema');
+  aplicarTema(nuevo, true);
+
+  clearTimeout(temporizadorTema);
+  temporizadorTema = setTimeout(() => raiz.classList.remove('cambiando-tema'), 500);
+}
+
+// ===== Publicidad de fondo =====
+
+// Construye las bandas a partir de la lista PUBLICIDAD (textContent: sin inyección de HTML)
+function construirPublicidad() {
+  PUBLICIDAD.forEach((config) => {
+    const banda = document.createElement('div');
+    banda.className = `banda banda-${config.estilo}`;
+    if (config.sentido === 'derecha') banda.classList.add('banda-derecha');
+
+    const pista = document.createElement('div');
+    pista.className = 'pista';
+    pista.style.setProperty('--duracion', `${config.velocidad}s`);
+
+    // Dos mitades idénticas: al desplazar la pista -50% el bucle es continuo.
+    // Cada mitad repite las frases para ser más ancha que cualquier pantalla.
+    for (let mitad = 0; mitad < 2; mitad++) {
+      for (let vuelta = 0; vuelta < 3; vuelta++) {
+        config.frases.forEach((texto) => {
+          const frase = document.createElement('span');
+          frase.className = 'frase';
+          frase.textContent = texto;
+          const separador = document.createElement('span');
+          separador.className = 'separador';
+          pista.append(frase, separador);
+        });
+      }
+    }
+
+    banda.appendChild(pista);
+    giroPublicidad.appendChild(banda);
+  });
+}
+
+// Muestra u oculta la publicidad, actualiza el botón y, si se pide, lo recuerda
+function aplicarPublicidad(visible, guardar = false) {
+  document.documentElement.classList.toggle('sin-publicidad', !visible);
+  const etiqueta = visible ? 'Ocultar publicidad de fondo' : 'Mostrar publicidad de fondo';
+  btnPublicidad.setAttribute('aria-label', etiqueta);
+  btnPublicidad.title = etiqueta;
+
+  if (guardar) {
+    try {
+      localStorage.setItem(PUBLICIDAD_STORAGE, visible ? '1' : '0');
+    } catch {
+      // Almacenamiento bloqueado: funciona igual, solo no se recuerda
+    }
+  }
+}
+
+// Alterna la publicidad por acción del usuario
+function alternarPublicidad() {
+  const estabaOculta = document.documentElement.classList.contains('sin-publicidad');
+  aplicarPublicidad(estabaOculta, true);
 }
 
 // ===== Envío de mensajes =====
