@@ -9,13 +9,13 @@
 <body>
   <div class="app menu-oculto" id="app">
 
-    <!-- Barra lateral: configuración de la clave de OpenRouter -->
+    <!-- Barra lateral: configuración de la clave de Alibaba Cloud (Model Studio) -->
     <aside class="sidebar" id="sidebar" aria-label="Configuración">
       <h2>Configuración</h2>
 
       <form id="form-clave" class="clave-form" autocomplete="off">
-        <label for="input-clave">Clave de OpenRouter</label>
-        <input type="password" id="input-clave" placeholder="Pega tu clave aquí" autocomplete="off">
+        <label for="input-clave">Clave de Alibaba Cloud (Model Studio)</label>
+        <input type="password" id="input-clave" placeholder="Pega tu clave API (sk-...) aquí" autocomplete="off">
         <div class="clave-botones">
           <button type="submit" class="btn-primario">Guardar</button>
           <button type="button" id="btn-borrar-clave" class="btn-secundario">Borrar clave</button>
@@ -59,8 +59,8 @@
 
           <div class="entrada-barra">
             <div class="chips">
-              <!-- Chips decorativos: solo visuales -->
-              <span class="chip">Pensamiento Profundo</span>
+              <!-- "Pensamiento Profundo" activa el modelo de razonamiento; "Búsqueda inteligente" es decorativa -->
+              <button type="button" id="btn-pensamiento" class="chip" aria-pressed="false" title="Modo razonamiento profundo: respuestas más elaboradas, pero tarda más en empezar">Pensamiento Profundo</button>
               <span class="chip chip-acento">Búsqueda inteligente</span>
             </div>
 

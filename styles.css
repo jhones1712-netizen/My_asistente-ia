@@ -7,6 +7,7 @@
   --texto: #f2f2f5;
   --texto-suave: #9a9aa6;
   --acento: #7c6cf0;
+  --acento-claro: #9d8cf4;
   --acento-oscuro: #6a5ae0;
   --error: #ff9a9a;
   --ok: #8be3a6;
@@ -321,6 +322,19 @@ input[type="password"] {
 
 .chip-acento {
   color: var(--acento);
+  border-color: var(--acento);
+}
+
+/* Chip convertido en botón: el navegador le pone fondo y fuente propios */
+button.chip {
+  cursor: pointer;
+  font: inherit;
+  background: transparent;
+}
+
+.chip.chip-activa {
+  background: color-mix(in srgb, var(--acento) 16%, transparent);
+  color: var(--acento-claro);
   border-color: var(--acento);
 }
 
